@@ -3,6 +3,8 @@
 
 #include "MoverComponent.h"
 
+#include "Math/UnrealMathUtility.h" // Include Directive
+
 // Sets default values for this component's properties
 UMoverComponent::UMoverComponent()
 {
@@ -21,6 +23,8 @@ void UMoverComponent::BeginPlay()
 
 	// ...
 	
+	StartLocation = GetOwner()->GetActorLocation();
+	TargetLocation = StartLocation + MoveOffset;
 }
 
 
@@ -30,5 +34,27 @@ void UMoverComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
+	// 
+	// Change TargetLocation based on bReverseMovement
+	if (bReverseMovement)
+	{
+		TargetLocation = StartLocation; //Reverse Mode
+	}
+	else
+	{
+		TargetLocation = StartLocation + MoveOffset; //Forward Mode
+	}
+	// Move Owner using Interpolation from Start to Target Location
+
+	if (bMovementEnabled)
+	{
+		FVector CurrentLocation = GetOwner()->GetActorLocation();
+
+		float InterpSpeed = MoveOffset.Length() / MoveTime; //InterpSpeed name ok as passing to external scope
+
+		FVector NewLocation = FMath::VInterpConstantTo(CurrentLocation, TargetLocation, DeltaTime, InterpSpeed);
+
+		GetOwner()->SetActorLocation(NewLocation);
+	}
 }
 
