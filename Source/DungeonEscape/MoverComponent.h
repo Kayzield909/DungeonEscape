@@ -31,6 +31,9 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	bool bReverseMovement;
+
+	UPROPERTY(VisibleAnywhere)
+	bool bTargetReached;
 	
 	FVector TargetLocation;
 	FVector StartLocation;
@@ -40,5 +43,10 @@ public:
 	
 	UPROPERTY(EditAnywhere)
 	float MoveTime = 4.0f; //Time from Start to End Location
+
+public:
+	// Movement Component functions
+	UFUNCTION(BlueprintCallable)
+	void SetMovementEnabled(bool Enabled, bool Reverse);
 
 };
