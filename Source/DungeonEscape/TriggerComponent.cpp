@@ -57,7 +57,11 @@ void UTriggerComponent::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AAct
 {
 	if (OtherActor && OtherActor->ActorHasTag("PressurePlateActivator"))
 	{
-		SetTriggerActive(true);
+		ActivatorCount++;
+		if (!bTriggerActive && (ActivatorCount >= RequiredActivatorCount))
+		{
+			SetTriggerActive(true);
+		}
 	}
 	
 }
@@ -66,7 +70,11 @@ void UTriggerComponent::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor
 {
 	if (OtherActor && OtherActor->ActorHasTag("PressurePlateActivator"))
 	{
-		SetTriggerActive(false);
+		ActivatorCount--;
+		if (bTriggerActive && (ActivatorCount < RequiredActivatorCount))
+		{
+			SetTriggerActive(false);
+		}
 	}
 }
 
@@ -80,6 +88,18 @@ void UTriggerComponent::SetTriggerActive(bool Active)
 	}
 	else
 	{
-		UE_LOG(LogTemp, Display, TEXT("%s Does NOT have MoverActor to Trigger"), *GetOwner()->GetActorNameOrLabel()); // * for string conversion
+		UE_LOG(LogTemp, Warning, TEXT("%s Does NOT have MoverActor to Trigger"), *GetOwner()->GetActorNameOrLabel()); // * for string conversion
+	}
+}
+
+void UTriggerComponent::SetMoverActor(AActor* NewMoverActor)
+{
+	if (NewMoverActor)
+	{
+		MoverActor = NewMoverActor;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Tried to set an invalid MoverActor!"));
 	}
 }

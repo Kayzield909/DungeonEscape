@@ -29,7 +29,7 @@ public:
 
 public:
 	// Class variables
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere) //So we can set actor var in level
 	AActor* MoverActor;
 
 	UMoverComponent* MoverComponentToTrigger;
@@ -37,9 +37,17 @@ public:
 	UPROPERTY(EditAnywhere)
 	bool bPressurePlate = false;
 
+	UPROPERTY(EditAnywhere)
+	int32 RequiredActivatorCount = 1; // Used to control threshhold of how many actors needed to activate trigger, deactivate if Activator count below this number
+
+private:
+	UPROPERTY(VisibleAnywhere)
+	int32 ActivatorCount = 0; // Counts how many activator actors are currently overlapping 
+
 	UPROPERTY(VisibleAnywhere)
 	bool bTriggerActive = false;
 
+public:
 	// Class Functions
 	/** called when something enters the box component */
 	UFUNCTION()
@@ -51,4 +59,7 @@ public:
 
 	UFUNCTION()
 	void SetTriggerActive(bool Active);
+
+	UFUNCTION(BlueprintCallable)
+	void SetMoverActor(AActor* NewMoverActor);
 };
