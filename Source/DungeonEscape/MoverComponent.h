@@ -24,9 +24,9 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-public:
+private:
 	// Movement Component Variables
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(VisibleAnywhere)
 	bool bMovementEnabled;
 
 	UPROPERTY(EditAnywhere)
@@ -37,6 +37,8 @@ public:
 	
 	FVector TargetLocation;
 	FVector StartLocation;
+
+public:
 	
 	UPROPERTY(EditAnywhere)
 	FVector MoveOffset;
@@ -48,5 +50,11 @@ public:
 	// Movement Component functions
 	UFUNCTION(BlueprintCallable)
 	void SetMovementEnabled(bool Enabled, bool Reverse);
+
+	UFUNCTION(BlueprintCallable)
+	bool GetMovementEnabled();
+
+	UFUNCTION(BlueprintCallable)
+	bool IsReverseMode(); // Struct would be better
 
 };

@@ -69,7 +69,7 @@ void UMoverComponent::SetMovementEnabled(bool Enabled, bool Reverse)
 {
 	bMovementEnabled = Enabled;
 	bReverseMovement = Reverse;
-	SetComponentTickEnabled(bMovementEnabled);
+	
 
 	// Change TargetLocation based on bReverseMovement
 	if (bReverseMovement)
@@ -80,5 +80,17 @@ void UMoverComponent::SetMovementEnabled(bool Enabled, bool Reverse)
 	{
 		TargetLocation = StartLocation + MoveOffset; //Forward Mode
 	}
+
+	SetComponentTickEnabled(bMovementEnabled);
+}
+
+bool UMoverComponent::GetMovementEnabled()
+{
+	return bMovementEnabled;
+}
+
+bool UMoverComponent::IsReverseMode()
+{
+	return bReverseMovement;
 }
 
