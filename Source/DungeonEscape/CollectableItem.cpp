@@ -10,7 +10,7 @@ ACollectableItem::ACollectableItem()
 	PrimaryActorTick.bCanEverTick = true;
 
 	Tags.Add("CollectableItem"); //Tag in constructor for editor visibility
-
+	SetActorTickEnabled(false); //Pre-optimisation, we only tick intentionally
 }
 
 // Called when the game starts or when spawned
