@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "TriggerComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "UObject/NameTypes.h"
 #include "Lock.generated.h"
 
 UCLASS()
@@ -37,7 +38,7 @@ public:
 	USceneComponent* RootComp;
 
 	UPROPERTY(EditAnywhere)
-	FString KeyItemName;
+	FName KeyItemName; //FName faster to compare that string
 
 private:
 	UPROPERTY(VisibleAnywhere)

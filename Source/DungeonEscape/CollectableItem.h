@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "UObject/NameTypes.h"
 #include "CollectableItem.generated.h"
 
 UCLASS()
@@ -26,6 +27,5 @@ public:
 public:
 	//Class Member Variables
 	UPROPERTY(EditAnywhere)
-	FString ItemName;
-
+	FName ItemName; //FName faster to compare that string
 };
