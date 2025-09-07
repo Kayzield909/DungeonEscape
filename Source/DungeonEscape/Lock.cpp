@@ -29,7 +29,7 @@ void ALock::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	SetKeyInPlace(true); // Test pursposes
+	SetKeyInPlace(false); // Lock is locked at begin play
 }
 
 // Called every frame
