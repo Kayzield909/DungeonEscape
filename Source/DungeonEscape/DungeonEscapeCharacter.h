@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
+#include "UObject/NameTypes.h"
 #include "DungeonEscapeCharacter.generated.h"
 
 class UInputComponent;
@@ -99,5 +100,19 @@ public:
 	// 
 	// Handles Interact inputs from either controls or UI interfaces
 	void Interact();
+
+public:
+	// Custom Variables
+	UPROPERTY(EditAnywhere, Category = "Interact")
+	float MaxInteractionDistance = 300.0f; // Use to calc end of interaction trace sweep. Able to interact with objects 3meters in front of us
+
+	UPROPERTY(EditAnywhere, Category = "Interact")
+	float InteractionSphereRadius = 5.0f;
+
+private:
+	// Custom Variables
+	UPROPERTY(VisibleAnywhere, Category = "Interact")
+	TArray<FName> ItemList; // FName > FString for lookup perfo
+
 };
 

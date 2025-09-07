@@ -8,6 +8,9 @@
 #include "EnhancedInputComponent.h"
 #include "InputActionValue.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "CollisionShape.h"
+#include "CollectableItem.h"
+#include "Lock.h"
 #include "DungeonEscape.h"
 
 ADungeonEscapeCharacter::ADungeonEscapeCharacter()
@@ -71,7 +74,88 @@ void ADungeonEscapeCharacter::SetupPlayerInputComponent(UInputComponent* PlayerI
 
 void ADungeonEscapeCharacter::Interact()
 {
-	UE_LOG(LogTemp, Display, TEXT("InteractAction Called"));
+	//Trace from Camera to a specified distance in the direction camera is looking at
+	//UE_LOG(LogTemp, Display, TEXT("Interact Action Called"));
+	FVector TraceStart = FirstPersonCameraComponent->GetComponentLocation();
+	FVector TraceEnd = TraceStart + MaxInteractionDistance * FirstPersonCameraComponent->GetForwardVector();
+
+	// Raycasting Debug
+	DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, false, 5.0f);
+
+	FCollisionShape InteractionSphere = FCollisionShape::MakeSphere(InteractionSphereRadius);
+	// DrawDebugSphere(GetWorld(), TraceStart, InteractionSphereRadius, 16, FColor::Green, false, 5.0f);
+	DrawDebugSphere(GetWorld(), TraceEnd, InteractionSphereRadius, 16, FColor::Green, false, 5.0f);
+
+	//Sweep Interact Channel using sphere shape, no rotation, pass by ref to HitResult
+	FHitResult HitResult;
+
+	bool HasHit = GetWorld()->SweepSingleByChannel(
+		HitResult,
+		TraceStart, TraceEnd,
+		FQuat::Identity,
+		ECC_GameTraceChannel2,
+		InteractionSphere
+	);
+
+	AActor* HitActor = HitResult.GetActor(); //Can use . operator because we passed by reference
+
+	if (HasHit)
+	{
+		// UE_LOG(LogTemp, Display, TEXT("Interact Sweep Hit Actor: %s"), *HitActor->GetActorNameOrLabel());
+
+		// Collectable Item clicked
+		if (HitActor->ActorHasTag("CollectableItem"))
+		{
+			ACollectableItem* CollectableItemHit = Cast<ACollectableItem>(HitActor);
+			if (CollectableItemHit)
+			{
+				UE_LOG(LogTemp, Display, TEXT("Collectable Item with Name: %s"), *CollectableItemHit->ItemName.ToString());
+
+				//Add collectable item name to inventory, destroy in level
+				ItemList.Add(CollectableItemHit->ItemName);
+				CollectableItemHit->Destroy();
+
+			}
+		}
+
+		// Lock clicked
+		else if (HitActor->ActorHasTag("Lock"))
+		{
+			ALock* LockActorHit = Cast<ALock>(HitActor);
+			if (LockActorHit)
+			{
+				// UE_LOG(LogTemp, Display, TEXT("Lock Actor with Key Item Name: %s"), *LockActorHit->KeyItemName.ToString());
+
+				// Check lock does not have key inserted AND we have matching key in inventory, simultaneously remove item from inventory if found
+				if (!LockActorHit->IsKeyInPlace())
+				{
+					if (ItemList.RemoveSingle(LockActorHit->KeyItemName))
+					{
+						LockActorHit->SetKeyInPlace(true); // Lock the lock - Make key in lock visible
+					}
+					else
+					{
+						UE_LOG(LogTemp, Display, TEXT("Key not in inventory!"));
+					}
+					
+				}
+				
+				// If key in lock, move key to inventory
+				else
+				{
+					ItemList.Add(LockActorHit->KeyItemName); // Add lock key to Inventory
+					LockActorHit->SetKeyInPlace(false); // Lock key, hide key mesh
+
+					UE_LOG(LogTemp, Display, TEXT("Key Added to inventory: %s"), *LockActorHit->KeyItemName.ToString());
+				}
+			}
+		}
+
+	}
+	else
+	{
+		UE_LOG(LogTemp, Display, TEXT("No actor hit!"));
+	}
 }
 
 
