@@ -70,6 +70,9 @@ void ADungeonEscapeCharacter::SetupPlayerInputComponent(UInputComponent* PlayerI
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &ADungeonEscapeCharacter::Interact);
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Ongoing, this, &ADungeonEscapeCharacter::Grab);
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Completed, this, &ADungeonEscapeCharacter::Release);
+
+		// Pause
+		EnhancedInputComponent->BindAction(PauseAction, ETriggerEvent::Started, this, &ADungeonEscapeCharacter::Pause);
 	}
 	else
 	{
@@ -207,6 +210,13 @@ void ADungeonEscapeCharacter::Release()
 
 		
 	}
+}
+
+void ADungeonEscapeCharacter::Pause_Implementation()
+{
+	// This is the pause func default C++ logic.
+		// It will run if the Blueprint doesn't override it,
+		// or if the Blueprint override calls the "Parent" node.
 }
 
 

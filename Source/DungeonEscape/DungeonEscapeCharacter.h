@@ -54,6 +54,10 @@ protected:
 	/** Interact Input Action */
 	UPROPERTY(EditAnywhere, Category = "Input")
 	UInputAction* InteractAction;
+
+	/** Pause Input Action */
+	UPROPERTY(EditAnywhere, Category = "Input")
+	UInputAction* PauseAction;
 	
 public:
 	ADungeonEscapeCharacter();
@@ -109,6 +113,11 @@ public:
 	void Grab();
 
 	void Release();
+
+	// Pause function Bound to IA_Pause, logic in blueprints of BP_Player
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent,Category = "Interact")
+	void Pause();
+
 
 public:
 	// Custom Variables
