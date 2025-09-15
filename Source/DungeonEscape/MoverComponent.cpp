@@ -49,6 +49,7 @@ void UMoverComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 		float DistanceSquared = FVector::DistSquared(CurrentLocation, TargetLocation);
 		bTargetReached = DistanceSquared < 1.0f;
 
+		// Interpolate from current location to target location over time T
 		if (!bTargetReached)
 		{
 			float InterpSpeed = MoveOffset.Length() / MoveTime; //InterpSpeed name ok as passing to external scope
@@ -61,7 +62,6 @@ void UMoverComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 		{
 			SetMovementEnabled(false, !bReverseMovement);
 		}
-		
 	}
 }
 
@@ -70,7 +70,6 @@ void UMoverComponent::SetMovementEnabled(bool Enabled, bool Reverse)
 	bMovementEnabled = Enabled;
 	bReverseMovement = Reverse;
 	
-
 	// Change TargetLocation based on bReverseMovement
 	if (bReverseMovement)
 	{
@@ -80,7 +79,6 @@ void UMoverComponent::SetMovementEnabled(bool Enabled, bool Reverse)
 	{
 		TargetLocation = StartLocation + MoveOffset; //Forward Mode
 	}
-
 	SetComponentTickEnabled(bMovementEnabled);
 }
 
