@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
 #include "UObject/NameTypes.h"
+#include "PhysicsEngine/PhysicsHandleComponent.h"
 #include "DungeonEscapeCharacter.generated.h"
 
 class UInputComponent;
@@ -95,11 +96,19 @@ public:
 	/** Returns first person camera component **/
 	UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
 
+	// Replaced Grabber Component Reference as component is mostly redundant and duplicates most interact() code
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UPhysicsHandleComponent* PhysicsHandleComponent;
+
 public:
 	// Custom InputActionEvents
 	// 
 	// Handles Interact inputs from either controls or UI interfaces
 	void Interact();
+
+	void Grab();
+
+	void Release();
 
 public:
 	// Custom Variables
@@ -107,12 +116,23 @@ public:
 	float MaxInteractionDistance = 300.0f; // Use to calc end of interaction trace sweep. Able to interact with objects 3meters in front of us
 
 	UPROPERTY(EditAnywhere, Category = "Interact")
+	float HoldDistance = 150.0f; // For Grabbable Items
+	
+	UPROPERTY(EditAnywhere, Category = "Interact")
 	float InteractionSphereRadius = 5.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Interact")
+	bool bInteractDrawDebug = false;
+
+	
 
 private:
 	// Custom Variables
 	UPROPERTY(VisibleAnywhere, Category = "Interact")
-	TArray<FName> ItemList; // FName > FString for lookup perfo
+	TArray<FName> ItemList; // FName > FString for lookup perfomance
+
+	UPROPERTY(VisibleAnywhere, Category = "Interact", meta = (AllowPrivateAccess = true))
+	bool bGrabberEnabled = true;
 
 };
 

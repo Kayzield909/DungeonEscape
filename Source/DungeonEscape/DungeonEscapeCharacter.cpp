@@ -45,6 +45,9 @@ ADungeonEscapeCharacter::ADungeonEscapeCharacter()
 	// Configure character movement
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
 	GetCharacterMovement()->AirControl = 0.5f;
+
+	// Create Grabber Component
+	PhysicsHandleComponent = CreateDefaultSubobject<UPhysicsHandleComponent>(TEXT("PhysicsHandleComp"));
 }
 
 void ADungeonEscapeCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -65,6 +68,8 @@ void ADungeonEscapeCharacter::SetupPlayerInputComponent(UInputComponent* PlayerI
 
 		// Interacting
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Started, this, &ADungeonEscapeCharacter::Interact);
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Ongoing, this, &ADungeonEscapeCharacter::Grab);
+		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Completed, this, &ADungeonEscapeCharacter::Release);
 	}
 	else
 	{
@@ -79,12 +84,16 @@ void ADungeonEscapeCharacter::Interact()
 	FVector TraceStart = FirstPersonCameraComponent->GetComponentLocation();
 	FVector TraceEnd = TraceStart + MaxInteractionDistance * FirstPersonCameraComponent->GetForwardVector();
 
-	// Raycasting Debug
-	DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, false, 5.0f);
-
 	FCollisionShape InteractionSphere = FCollisionShape::MakeSphere(InteractionSphereRadius);
-	// DrawDebugSphere(GetWorld(), TraceStart, InteractionSphereRadius, 16, FColor::Green, false, 5.0f);
-	DrawDebugSphere(GetWorld(), TraceEnd, InteractionSphereRadius, 16, FColor::Green, false, 5.0f);
+
+	if (bInteractDrawDebug)
+	{
+		// Raycasting Debug
+		DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, false, 5.0f);
+
+		// DrawDebugSphere(GetWorld(), TraceStart, InteractionSphereRadius, 16, FColor::Green, false, 5.0f);
+		DrawDebugSphere(GetWorld(), TraceEnd, InteractionSphereRadius, 16, FColor::Green, false, 5.0f);
+	}
 
 	//Sweep Interact Channel using sphere shape, no rotation, pass by ref to HitResult
 	FHitResult HitResult;
@@ -124,7 +133,7 @@ void ADungeonEscapeCharacter::Interact()
 			ALock* LockActorHit = Cast<ALock>(HitActor);
 			if (LockActorHit)
 			{
-				// UE_LOG(LogTemp, Display, TEXT("Lock Actor with Key Item Name: %s"), *LockActorHit->KeyItemName.ToString());
+				UE_LOG(LogTemp, Display, TEXT("Hit Lock Actor with Key Item Name: %s"), *LockActorHit->KeyItemName.ToString());
 
 				// Check lock does not have key inserted AND we have matching key in inventory, simultaneously remove item from inventory if found
 				if (!LockActorHit->IsKeyInPlace())
@@ -151,10 +160,52 @@ void ADungeonEscapeCharacter::Interact()
 			}
 		}
 
+		// GrabbableItem clicked
+		if (HitActor->ActorHasTag("GrabbableItem"))
+		{
+			UE_LOG(LogTemp, Display, TEXT("Grabbable Item with Name: %s"), *HitActor->GetActorNameOrLabel());
+
+			UPrimitiveComponent* HitComponent = HitResult.GetComponent();
+
+			HitComponent->WakeAllRigidBodies(); // Ensures response to physics handle
+
+			PhysicsHandleComponent->GrabComponentAtLocationWithRotation(
+				HitComponent,
+				NAME_None,
+				HitResult.ImpactPoint,
+				HitResult.GetComponent()->GetComponentRotation()
+			);
+		}
 	}
 	else
 	{
 		UE_LOG(LogTemp, Display, TEXT("No actor hit!"));
+	}
+}
+
+void ADungeonEscapeCharacter::Grab()
+{
+	if (bGrabberEnabled && PhysicsHandleComponent->GetGrabbedComponent())
+	{
+		// UE_LOG(LogTemp, Display, TEXT("Grab Function Called"));
+
+		FVector TargetGrabLocation = FirstPersonCameraComponent->GetComponentLocation() + HoldDistance * FirstPersonCameraComponent->GetForwardVector();
+
+		PhysicsHandleComponent->SetTargetLocationAndRotation(
+			TargetGrabLocation, FirstPersonCameraComponent->GetComponentRotation());
+	}
+}
+
+void ADungeonEscapeCharacter::Release()
+{
+	if (PhysicsHandleComponent->GetGrabbedComponent()) //nullptr check
+	{
+		// Log message before release to avoid nullptr crash
+		UE_LOG(LogTemp, Display, TEXT("Grabbed Component Released: %s"), *PhysicsHandleComponent->GetGrabbedComponent()->GetName());
+
+		PhysicsHandleComponent->ReleaseComponent();
+
+		
 	}
 }
 
